@@ -64,6 +64,11 @@ export default {
         return [10, 10]
       }
     },
+    static: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
     isDraggable: {
       type: Boolean,
       default: true
@@ -170,6 +175,9 @@ export default {
     })
   },
   watch: {
+    // colNum: function () {
+    //   this.layoutUpdate()
+    // },
     width: function () {
       this.$nextTick(function () {
         // this.$broadcast('updateWidth', this.width)
@@ -198,7 +206,7 @@ export default {
           this.lastLayoutLength = this.layout.length
         }
         compact(this.layout, this.verticalCompact)
-        this.eventBus.$emit('updateWidth', this.width)
+        this.eventBus.$emit('updateWidth', this.width, this.colNum)
         this.updateHeight()
       }
     },

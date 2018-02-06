@@ -123,12 +123,12 @@ export default {
         type: Boolean,
         required: true
         },
-        static: {
-        type: Boolean,
-        required: false,
-        default: false
-        },
          */
+    static: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
     minH: {
       type: Number,
       required: false,
@@ -220,8 +220,8 @@ export default {
     var self = this
 
     // Accessible refernces of functions for removing in beforeDestroy
-    self.updateWidthHandler = function (width) {
-      self.updateWidth(width)
+    self.updateWidthHandler = function (width, colNum) {
+      self.updateWidth(width, colNum)
     }
 
     self.compactHandler = function (layout) {
@@ -254,6 +254,7 @@ export default {
 
     this.eventBus.$on('updateWidth', self.updateWidthHandler)
     this.eventBus.$on('compact', self.compactHandler)
+    this.eventBus.$on('updateColNum', self.updateColNumHandler)
     this.eventBus.$on('setDraggable', self.setDraggableHandler)
     this.eventBus.$on('setResizable', self.setResizableHandler)
     this.eventBus.$on('setRowHeight', self.setRowHeightHandler)
@@ -272,6 +273,7 @@ export default {
     // Remove listeners
     this.eventBus.$off('updateWidth', self.updateWidthHandler)
     this.eventBus.$off('compact', self.compactHandler)
+    this.eventBus.$off('updateColNum', self.updateColNumHandler)
     this.eventBus.$off('setDraggable', self.setDraggableHandler)
     this.eventBus.$off('setResizable', self.setResizableHandler)
     this.eventBus.$off('setRowHeight', self.setRowHeightHandler)
@@ -283,20 +285,16 @@ export default {
     this.containerWidth = this.$parent.width !== null ? this.$parent.width : 100
     this.margin = this.$parent.margin !== undefined ? this.$parent.margin : [10, 10]
     this.maxRows = this.$parent.maxRows
-    if (this.isDraggable === null) {
-      this.draggable = this.$parent.isDraggable
-    } else {
-      this.draggable = this.isDraggable
-    }
-    if (this.isResizable === null) {
-      this.resizable = this.$parent.isResizable
-    } else {
-      this.resizable = this.isResizable
-    }
+    this.draggable = !this.static && this.$parent.isDraggable && (this.isDraggable || this.isDraggable == null)
+    this.resizable = !this.static && this.$parent.isResizable && (this.isResizable || this.isResizable == null)
     this.useCssTransforms = this.$parent.useCssTransforms
     this.createStyle()
   },
   watch: {
+    static: function () {
+      this.draggable = !this.static && this.$parent.isDraggable && (this.isDraggable || this.isDraggable == null)
+      this.resizable = !this.static && this.$parent.isResizable && (this.isResizable || this.isResizable == null)
+    },
     isDraggable: function () {
       this.draggable = this.isDraggable
     },
@@ -698,6 +696,9 @@ export default {
       if (colNum !== undefined && colNum !== null) {
         this.cols = colNum
       }
+    },
+    updateColNumHandler: function (colNum) {
+      this.cols = colNum
     },
     compact: function () {
       this.createStyle()
